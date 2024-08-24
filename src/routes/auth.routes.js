@@ -11,7 +11,7 @@ router.get("/login", async (req, res) => {
 
 // Ruta para iniciar sesión
 router.post("/login", generateToken, (req, res) => {
-    res.status(200).redirect("/ingredients");
+    res.status(200).redirect("/");
 });
 
 // Ruta para cerrar sesión

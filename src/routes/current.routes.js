@@ -6,10 +6,10 @@ import { handleError } from "../middlewares/error.middleware.js";
 const router = Router();
 const userManager = new UserManager();
 
-router.get("/", checkAuth, async (req, res) => {
+router.get("/", checkAuth, async (req, res, next) => {
     try {
-        const userFound = userManager.findOneById(req.id);
-        res.render("userInfo", { userFound });
+        const userFound = await userManager.getOneById(req.id);
+        res.render("userInfo", { userInfo: { firstName: userFound.firstName, lastName: userFound.lastName, email: userFound.email, roles: req.roles } });
     } catch (error) {
         next(error);
     }
