@@ -1,18 +1,26 @@
 import express from "express";
 import paths from "./utils/paths.js";
+import cookieParser from "cookie-parser";
 
 import { config as dotenvConfig } from "dotenv";
 import { connectDB } from "./config/mongoose.config.js";
 import { config as configHandlebars } from "./config/handlebars.config.js";
 import { config as configSocket } from "./config/socket.config.js";
+import { config as configPassport } from "./config/passport.config.js";
 
 import apiCartRouter from "./routes/api/cart.routes.js";
+import apiAuthRouter from "./routes/api/auth.routes.js";
 import apiProductRouter from "./routes/api/product.routes.js";
+import apiUserRouter from "./routes/api/user.routes.js";
 import cartRouter from "./routes/carts.routes.js";
 import homeRouter from "./routes/home.routes.js";
 import productRouter from "./routes/products.routes.js";
+import authRouter from "./routes/auth.routes.js";
+import currentRouter from "./routes/current.routes.js";
 
 const server = express();
+//Cookie Parser
+server.use(cookieParser(process.env.SECRET_KEY));
 
 // Decodificadores del BODY
 server.use(express.urlencoded({ extended: true }));
@@ -27,15 +35,22 @@ dotenvConfig({ path: paths.env });
 // Motor de plantillas
 configHandlebars(server);
 
+//Passport
+configPassport(server);
+
 // Conexión con la Base de Datos
 connectDB();
 
 // Enrutadores
 server.use("/api/carts", apiCartRouter);
 server.use("/api/products", apiProductRouter);
+server.use("/api/auth", apiAuthRouter);
+server.use("/api/sessions", apiUserRouter);
 server.use("/carts", cartRouter);
 server.use("/", homeRouter);
 server.use("/products", productRouter);
+server.use("/auth", authRouter);
+server.use("/current", currentRouter);
 
 // Control de rutas inexistentes
 server.use("*", (req, res) => {
@@ -52,6 +67,5 @@ server.use((error, req, res) => {
 const serverHTTP = server.listen(process.env.PORT, () => {
     console.log(`Ejecutándose en http://localhost:${process.env.PORT}`);
 });
-
 // Servidor de WebSocket
 configSocket(serverHTTP);
